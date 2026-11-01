@@ -21,10 +21,12 @@ other's castles with a slingshot catapult. Live at <https://dinomike.ca/ToyboxSi
   `getUserMedia` (rear camera) behind a transparent WebGL canvas. The camera needs HTTPS on phones.
 * **Placement flow:** splash → START → choose the arena shape and height → ✅ → battle. Aim by dragging down in
   the lower half of the screen (the slingshot zone); the upper half orbits the view.
-* **Multiplayer:** a WebSocket to `wss://<same host>/ws` carries arena sync, shots and reloads. The relay server is
-  **not** in this build. On a static host (dinomike.ca on Netlify) the socket fails and retries every 3 s;
-  the game plays solo. Restoring multiplayer needs a small relay (for example a serverless WebSocket service) and
-  a matching URL in the source.
+* **Multiplayer:** the game opens a WebSocket to the relay named in `<meta name="toybox-relay">` (`relay/`, a
+  Cloudflare Worker with one Durable Object per room). The bundle was patched in two places in `connect()`: it reads
+  that meta tag (falling back to the page's own host), and it adds a `room` code (from the URL, or a new random one
+  that it writes into the URL with `history.replaceState`, so the invite link and QR code carry it). The relay
+  assigns slots, announces `player_joined` / `player_left` and forwards everything else unchanged. The original
+  bundle file name was `index-MazfevVm.js`; the patched one is `index-mp1.js`.
 * No API keys or accounts.
 
 ## Hosting
