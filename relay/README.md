@@ -12,10 +12,12 @@ The multiplayer server for [Toybox Siege](../README.md): a Cloudflare Worker wit
 
 ## Deploy (no command line)
 
-Cloudflare dashboard → **Workers & Pages → Create → Import a repository** → this repo →
-project name **`toybox-siege-relay`**, deploy command **`npx wrangler deploy`**, root directory **`relay`**.
-Every push to the repo redeploys it. The game reads the relay's address from
-`<meta name="toybox-relay">` in `index.html`.
+GitHub deploys it: `.github/workflows/deploy-relay.yml` runs `wrangler deploy` in this folder whenever `relay/`
+changes (or from the **Actions** tab → **Deploy relay** → **Run workflow**). It needs two repository secrets
+(**Settings → Secrets and variables → Actions**): `CLOUDFLARE_API_TOKEN`, a Cloudflare API token made from the
+**Edit Cloudflare Workers** template, and `CLOUDFLARE_ACCOUNT_ID`. The relay's address is printed at the end of the
+run: `https://toybox-siege-relay.<your-subdomain>.workers.dev`. The game reads it from
+`<meta name="toybox-relay">` in `index.html` (as `wss://…`).
 
 ## Run locally
 
