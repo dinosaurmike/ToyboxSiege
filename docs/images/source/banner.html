@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Toybox Siege banner</title>
+<!-- Background of the README header (960x560). The gameplay frames are composited into the phone screen
+     (left 676, top 30, 232x502, radius 26) by make-gif.py. ?social renders the 1280x640 social preview instead. -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap');
+*{margin:0;box-sizing:border-box}
+html,body{width:960px;height:560px;overflow:hidden;font-family:Fredoka,system-ui,sans-serif}
+body{background:radial-gradient(circle at 78% 45%,#bde6ff 0,#7cc8f5 38%,#3f8fd8 100%)}
+.ground{position:absolute;left:-40px;right:-40px;bottom:-120px;height:230px;border-radius:50%;background:#5cbf3a;box-shadow:inset 0 14px 0 #76d64f}
+.block{position:absolute;border-radius:6px;box-shadow:inset -5px -6px 0 rgba(0,0,0,.18)}
+.title{position:absolute;left:58px;top:72px;font-weight:700;line-height:.95;letter-spacing:2px}
+.t1{font-size:96px;color:#ffb703;text-shadow:3px 3px #fb8500,-2px -2px #fff,2px -2px #fff,-2px 2px #fff,2px 2px #fff,6px 6px #d90429,0 10px 22px rgba(0,0,0,.3);display:block;transform:rotate(-2.5deg)}
+.t2{font-size:96px;color:#4cc9f0;text-shadow:3px 3px #3a86ff,-2px -2px #fff,2px -2px #fff,-2px 2px #fff,2px 2px #fff,6px 6px #1d3557,0 10px 22px rgba(0,0,0,.3);display:block;transform:rotate(2deg);margin-left:60px}
+.tag{position:absolute;left:62px;top:292px;width:560px;font-size:27px;line-height:1.3;color:#0f2a4a;font-weight:500}
+.tag b{font-weight:600;color:#d90429}
+.chips{position:absolute;left:62px;top:430px;display:flex;gap:10px;font-size:17px;font-weight:600}
+.chip{background:#fff;color:#1d3557;padding:7px 14px;border-radius:999px;box-shadow:0 4px 0 #1d3557}
+.phone{position:absolute;left:664px;top:18px;width:256px;height:526px;border-radius:38px;background:#111827;box-shadow:0 22px 50px rgba(15,30,60,.45),inset 0 0 0 3px #374151}
+.screen{position:absolute;left:676px;top:30px;width:232px;height:502px;border-radius:26px;background:#000}
+.foot{position:absolute;left:62px;bottom:26px;font-size:18px;font-weight:600;color:#fff;letter-spacing:1px;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+body.social{width:1280px;height:640px}
+#wrap{position:absolute;left:0;top:0;width:960px;height:560px}
+html.social,html.social body{width:1280px;height:640px}
+body.social #wrap{transform:translate(91px,0) scale(1.142857);transform-origin:0 0}
+</style></head><body>
+<div class="ground"></div>
+<div id="wrap">
+<div class="block" style="left:520px;top:470px;width:46px;height:46px;background:#e63946"></div>
+<div class="block" style="left:572px;top:482px;width:34px;height:34px;background:#f4a261"></div>
+<div class="block" style="left:540px;top:430px;width:30px;height:38px;background:#2a9d8f"></div>
+<div class="title"><span class="t1">TOYBOX</span><span class="t2">SIEGE</span></div>
+<div class="tag">Mixed-reality tabletop physics. Build your castle, then <b>fire a catapult across the living room.</b></div>
+<div class="chips"><span class="chip">WEB AR</span><span class="chip">PHYSICS</span><span class="chip">SLOW-MO REPLAYS</span></div>
+<div class="foot">DINOMIKE.CA/TOYBOXSIEGE</div>
+<div class="phone"></div><div class="screen"></div>
+</div>
+<script>if(location.search.includes("social")){document.documentElement.classList.add("social");document.body.classList.add("social")}</script>
+</body></html>

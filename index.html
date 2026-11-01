@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#87ceeb">
+  <title>Toybox Siege AR</title>
+  <style>*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;margin:0;padding:0}html,body{touch-action:none;width:100%;height:100%;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Fredoka One,Comic Sans MS,sans-serif;overflow:hidden;background:0 0!important}html.ar-active,body.ar-active{background:0 0!important}#camera-feed{object-fit:cover;z-index:0;pointer-events:none;width:100%;height:100%;display:none;position:fixed;inset:0}#webgl-canvas{z-index:1;background:0 0;width:100%;height:100%;display:block;position:fixed;inset:0}#overlay{pointer-events:none;z-index:10;width:100%;height:100%;position:fixed;inset:0}.top-bar{padding:env(safe-area-inset-top,10px) 14px 0 14px;pointer-events:none;z-index:20;justify-content:center;align-items:center;margin-top:6px;display:flex;position:relative}.top-bar-dock{-webkit-backdrop-filter:blur(14px);pointer-events:auto;background:#ffffff8c;border:2.5px solid #ffffffd9;border-radius:40px;justify-content:center;align-items:center;gap:12px;padding:6px 14px;display:flex;box-shadow:0 8px 24px #00000024}.kid-btn{cursor:pointer;pointer-events:auto;-webkit-user-select:none;user-select:none;background:#fff;border:3.5px solid #fff;border-radius:50%;outline:none;flex-shrink:0;justify-content:center;align-items:center;width:58px;height:58px;font-size:28px;transition:transform .12s cubic-bezier(.34,1.56,.64,1),box-shadow .12s;display:flex;box-shadow:0 6px 16px #0000002e,0 2px 4px #0000001a}.kid-btn:active{transform:scale(.88);box-shadow:0 2px 6px #00000026}#btn-reset{color:#fff;text-shadow:0 2px 4px #00000026;background:linear-gradient(135deg,#ffd166,#ffb703)}#btn-arena-geometry{color:#fff;text-shadow:0 2px 4px #00000026;background:linear-gradient(135deg,#06d6a0,#118ab2);font-size:28px}#btn-settings{color:#fff;text-shadow:0 2px 4px #0003;background:linear-gradient(135deg,#7b2cbf,#5a189a);font-size:26px;font-weight:900}#hint-bubble{top:calc(env(safe-area-inset-top,10px) + 94px);color:#1e293b;pointer-events:none;text-align:center;white-space:nowrap;z-index:40;background:#fffffff0;border-radius:28px;align-items:center;gap:8px;max-width:88%;padding:8px 22px;font-size:16px;font-weight:800;transition:opacity .3s,transform .3s;display:flex;position:absolute;left:50%;transform:translate(-50%);box-shadow:0 6px 16px #0000001f}#hint-bubble.hidden{opacity:0;visibility:hidden;pointer-events:none;transform:translate(-50%)translateY(-10px)}.placement-banner{top:calc(env(safe-area-inset-top,10px) + 12px);pointer-events:auto;z-index:100;background:#ffffffeb;border:3.5px solid #fff;border-radius:36px;justify-content:center;align-items:center;gap:12px;padding:8px 16px;transition:opacity .3s,transform .3s;display:flex;position:absolute;left:50%;transform:translate(-50%);box-shadow:0 10px 28px #00000038}.placement-banner.hidden{opacity:0;pointer-events:none;display:none!important}.shape-picker-dock{pointer-events:auto;align-items:center;gap:10px;display:flex}.shape-btn{cursor:pointer;-webkit-user-select:none;user-select:none;background:#f8fafc;border:3px solid #fff;border-radius:18px;outline:none;flex-shrink:0;justify-content:center;align-items:center;width:52px;height:52px;font-size:26px;transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s,border-color .15s;display:flex;box-shadow:0 4px 12px #00000029}.shape-btn:active{transform:scale(.88)}.shape-btn.active{border-color:#ffd166;transform:scale(1.08);box-shadow:0 0 0 3px #ffb703,0 6px 16px #ffb70366}.dock-divider{background:#0000001f;border-radius:2px;width:2px;height:32px;margin:0 2px}#btn-reset-scan{color:#fff;background:linear-gradient(135deg,#ff70a6,#e63946);font-size:24px}#btn-shape-rect{background:linear-gradient(135deg,#4cc9f0,#4361ee)}#btn-shape-circle{background:linear-gradient(135deg,#ffd166,#ff70a6)}#btn-shape-square{background:linear-gradient(135deg,#06d6a0,#05b184)}.copy-url-btn{color:#fff;cursor:pointer;pointer-events:auto;background:linear-gradient(135deg,#06d6a0,#118ab2);border:2px solid #fff;border-radius:20px;margin-top:10px;padding:8px 18px;font-size:13px;font-weight:800;transition:transform .1s;box-shadow:0 3px 8px #06d6a04d}.copy-url-btn:active{transform:scale(.92)}#orbit-zone{z-index:4;pointer-events:auto;touch-action:none;width:100%;height:40%;position:absolute;top:0;left:0}#slingshot-zone{z-index:5;pointer-events:auto;touch-action:none;width:100%;height:60%;position:absolute;bottom:0;left:0}.pull-guide{bottom:calc(env(safe-area-inset-bottom,24px) + 136px);color:#ffffffbf;letter-spacing:.5px;pointer-events:none;text-shadow:0 1px 3px #00000059;z-index:10;flex-direction:column;align-items:center;gap:4px;font-size:14px;font-weight:700;transition:opacity .5s;display:flex;position:absolute;left:50%;transform:translate(-50%)}.pull-guide.hidden{opacity:0}.pull-arrow{font-size:20px;animation:1.4s ease-in-out infinite bounceArrow}@keyframes bounceArrow{0%,to{transform:translateY(0)}50%{transform:translateY(-4px)}}#btn-confirm-ar{bottom:calc(env(safe-area-inset-bottom,24px) + 72px);color:#fff;cursor:pointer;pointer-events:auto;z-index:30;-webkit-user-select:none;user-select:none;background:linear-gradient(135deg,#06d6a0,#05b184);border:4px solid #fff;border-radius:50%;justify-content:center;align-items:center;width:72px;height:72px;padding:0;font-size:34px;transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s;animation:2s ease-in-out infinite pulseConfirm;display:flex;position:absolute;left:50%;transform:translate(-50%);box-shadow:0 10px 24px #06d6a073,0 4px 10px #0003}#btn-confirm-ar:active{transform:translate(-50%)scale(.9);box-shadow:0 4px 12px #06d6a04d}#btn-confirm-ar.hidden{display:none!important}@keyframes pulseConfirm{0%,to{transform:translate(-50%)scale(1)}50%{transform:translate(-50%)scale(1.08)}}#btn-multiplayer{color:#fff;text-shadow:0 2px 4px #00000026;background:linear-gradient(135deg,#a06cd5,#6247aa);font-size:24px;position:relative}#btn-multiplayer.multiplayer-active{border-color:#ffd166;animation:2s ease-in-out infinite friendPulse;box-shadow:0 0 0 3.5px #ffd166,0 8px 20px #a06cd580}@keyframes friendPulse{0%,to{transform:scale(1)}50%{transform:scale(1.08)}}#btn-multiplayer .badge-count{display:none!important}.ammo-rack{left:calc(env(safe-area-inset-left,0px) + 14px);pointer-events:none;z-index:25;box-sizing:border-box;background:#fffffff0;border:3px solid #fff;border-radius:26px;flex-direction:column;align-items:center;gap:8px;min-width:44px;padding:10px 8px;transition:transform .25s,background .25s,box-shadow .25s,border-color .25s;display:flex;position:absolute;top:50%;transform:translateY(-50%);box-shadow:0 8px 24px #00000029}.ammo-label{color:#334155;letter-spacing:.5px;flex-direction:column;align-items:center;font-size:13px;font-weight:900;line-height:1.1;display:flex}.ammo-pips{flex-direction:column-reverse;align-items:center;gap:8px;display:flex}.ammo-pip{background:radial-gradient(circle at 35% 35%,#4cc9f0,#3a86ff 60%,#1d3557);border:2px solid #fff;border-radius:50%;width:22px;height:22px;transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .25s,filter .25s;box-shadow:0 3px 6px #00000040}.ammo-pip.red-team{background:radial-gradient(circle at 35% 35%,#ff70a6,#ff4757 60%,#9e0031)}.ammo-pip.spent{opacity:.22;filter:grayscale();transform:scale(.65)}.ammo-rack.can-reload{pointer-events:auto;cursor:pointer;background:linear-gradient(#06d6a0,#059669);border-color:#a7f3d0;animation:1.2s ease-in-out infinite reloadPulse;box-shadow:0 8px 24px #06d6a073}.ammo-rack.waiting-reload{pointer-events:auto;background:#fffffff5;border-color:#ffd166;box-shadow:0 8px 20px #ffb70340}@keyframes reloadPulse{0%,to{transform:translateY(-50%)scale(1)}50%{transform:translateY(-50%)scale(1.06)}}.btn-reload-ammo{color:#059669;cursor:pointer;pointer-events:auto;touch-action:manipulation;text-align:center;background:#fff;border:none;border-radius:16px;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:8px 6px;font-size:11px;font-weight:900;line-height:1.15;display:inline-flex;box-shadow:0 3px 8px #0003}.btn-reload-ammo:active{transform:scale(.94)}.btn-reload-ammo.hidden{display:none!important}.ammo-wait-status{color:#b45309;text-align:center;flex-direction:column;align-items:center;gap:6px;font-size:11px;font-weight:800;line-height:1.15;display:flex}.ammo-wait-status.hidden{display:none!important}.btn-force-reload{color:#1e293b;cursor:pointer;pointer-events:auto;touch-action:manipulation;background:#ffb703;border:none;border-radius:12px;padding:3px 8px;font-size:11px;font-weight:800;box-shadow:0 2px 5px #00000026}.btn-force-reload:active{transform:scale(.92)}.modal-overlay{-webkit-backdrop-filter:blur(8px);z-index:100;pointer-events:auto;background:#0f172aa6;justify-content:center;align-items:center;width:100vw;height:100vh;padding:20px;transition:opacity .25s;display:flex;position:fixed;top:0;left:0}.modal-overlay.hidden{display:none!important}.modal-card{color:#3b2314;text-align:center;background:#fdfbf7;border:4px solid #ede3d2;border-radius:30px;width:100%;max-width:370px;padding:24px;animation:.25s cubic-bezier(.34,1.56,.64,1) popModal;box-shadow:0 20px 48px #23140a6b,inset 0 2px 4px #fffffff2,inset 0 -3px 6px #b48c5a2e,0 0 0 6px #5c3519}@keyframes popModal{0%{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}.modal-header{justify-content:space-between;align-items:center;margin-bottom:16px;display:flex}.modal-header h3{color:#3b2314;text-shadow:0 1px #fffc;font-size:20px;font-weight:800}.close-btn{color:#785a44;cursor:pointer;background:#f1ece1;border:2px solid #ede3d2;border-radius:50%;justify-content:center;align-items:center;width:36px;height:36px;font-size:18px;font-weight:700;display:flex}.close-btn:active{background:#e5ded0}.settings-card{max-width:360px}.settings-list{flex-direction:column;gap:14px;margin-top:16px;display:flex}.setting-item-row{background:#0000000a;border:2px solid #0000000f;border-radius:20px;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;display:flex}.setting-label-block{align-items:center;gap:12px;display:flex}.setting-emoji{flex-shrink:0;font-size:26px}.setting-text-col{text-align:left;flex-direction:column;display:flex}.setting-name{color:#1e293b;font-size:16px;font-weight:800}.setting-desc{color:#64748b;margin-top:2px;font-size:11px;font-weight:600}.setting-toggle-pill{cursor:pointer;pointer-events:auto;border:2.5px solid #fff;border-radius:22px;outline:none;flex-shrink:0;align-items:center;width:76px;height:38px;padding:3px;transition:background .2s,box-shadow .2s;display:flex;position:relative;box-shadow:0 4px 10px #0000001f}.setting-toggle-pill.is-on{background:linear-gradient(135deg,#06d6a0,#05b184);justify-content:flex-end}.setting-toggle-pill.is-off{background:#cbd5e1;justify-content:flex-start}.toggle-pill-thumb{background:#fff;border-radius:50%;width:30px;height:30px;box-shadow:0 2px 6px #0003}.toggle-pill-text{color:#fff;font-size:12px;font-weight:900;position:absolute;top:50%;transform:translateY(-50%)}.setting-toggle-pill.is-on .toggle-pill-text{left:10px}.setting-toggle-pill.is-off .toggle-pill-text{color:#475569;right:10px}.setting-group-box{background:#0000000a;border:2px solid #0000000f;border-radius:20px;flex-direction:column;gap:10px;padding:12px 14px;display:flex}.setting-group-label{align-items:center;gap:8px;display:flex}.character-segmented-control{background:#e2e8f0;border-radius:18px;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px;display:grid}.char-picker-btn{cursor:pointer;pointer-events:auto;background:0 0;border:2.5px solid #0000;border-radius:14px;outline:none;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:10px 4px;transition:all .15s cubic-bezier(.34,1.56,.64,1);display:flex}.char-picker-btn .char-btn-emoji{font-size:24px;line-height:1}.char-picker-btn .char-btn-label{color:#475569;font-size:12px;font-weight:800}.char-picker-btn.is-selected{background:#fff;border-color:#ffd166;transform:scale(1.04);box-shadow:0 4px 12px #ffb70359}.char-picker-btn.is-selected .char-btn-label{color:#b45309;font-weight:900}.qr-subtext{color:#64748b;word-break:break-all;-webkit-user-select:text;user-select:text;max-width:100%;padding:0 8px;font-size:12px;font-weight:600;line-height:1.4}.qr-subtext:focus-visible{outline-offset:3px;border-radius:8px;outline:3px solid #a06cd5}.duel-card{text-align:center;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;color:#3b2314;background:#fdfbf7;border:4px solid #ede3d2;border-radius:30px;flex-direction:column;align-items:center;gap:10px;max-width:360px;max-height:min(92vh,700px);padding:20px 18px 18px;display:flex;overflow-y:auto;box-shadow:0 20px 48px #23140a6b,inset 0 2px 4px #fffffff2,inset 0 -3px 6px #b48c5a2e,0 0 0 6px #5c3519}.duel-header{justify-content:space-between;align-items:center;width:100%;margin-bottom:2px;display:flex}.duel-header-title{color:#1e1b4b;letter-spacing:-.5px;text-transform:uppercase;align-items:center;gap:8px;font-size:22px;font-weight:900;display:flex}.duel-header-title .title-icon{font-size:26px}.duel-close-btn{color:#ef4444;cursor:pointer;touch-action:manipulation;background:#fee2e2;border:2.5px solid #fff;border-radius:50%;justify-content:center;align-items:center;width:42px;height:42px;font-size:20px;font-weight:900;transition:transform .12s cubic-bezier(.34,1.56,.64,1),background .12s;display:flex;box-shadow:0 4px 10px #ef444433}.duel-close-btn:active{background:#fecaca;transform:scale(.88)}.close-btn:hover{background:#e2e8f0}.close-btn:focus-visible,.duel-close-btn:focus-visible,.copy-url-btn:focus-visible,.confirm-btn:focus-visible,.splash-start-btn:focus-visible,.splash-secondary-btn:focus-visible,.kid-btn:focus-visible{outline-offset:3px;outline:3px solid #6247aa}.toy-stage{justify-content:center;align-items:center;gap:16px;width:100%;padding:4px 0 2px;display:flex}.toy-figure{flex-direction:column;align-items:center;gap:4px;display:flex;position:relative}.toy-figure.hidden{display:none!important}.btn-add-seat{color:#64748b;cursor:pointer;-webkit-user-select:none;user-select:none;background:#f8fafc;border:2.5px dashed #94a3b8;border-radius:50%;justify-content:center;align-items:center;width:44px;height:44px;margin-top:14px;padding:0;font-size:11px;font-weight:800;transition:transform .15s,background .15s,border-color .15s;display:flex;box-shadow:0 2px 6px #00000014}.btn-add-seat:active{background:#e2e8f0;transform:scale(.92)}.btn-add-seat.hidden{display:none!important}.figure-avatar-wrap{background:#eff6ff;border:3px solid #60a5fa;border-radius:50%;justify-content:center;align-items:center;width:48px;height:48px;display:flex;position:relative;box-shadow:0 4px 10px #2563eb33}.figure-red .figure-avatar-wrap{background:#fef2f2;border-color:#f87171;box-shadow:0 4px 10px #ef444433}.figure-red.is-waiting{animation:1.6s ease-in-out infinite waitingPulse}.figure-red.is-waiting #avatar-p2-face{transform-origin:50%;animation:2.4s cubic-bezier(.45,.05,.55,.95) infinite hourglassWobbleSpin;display:inline-block}@keyframes hourglassWobbleSpin{0%{transform:rotate(0)scale(1)}4%{transform:rotate(-22deg)scale(1.1)}8%{transform:rotate(22deg)scale(1.1)}12%{transform:rotate(-18deg)scale(1.15)}16%{transform:rotate(18deg)scale(1.15)}20%{transform:rotate(-10deg)scale(1.1)}24%{transform:rotate(10deg)scale(1.1)}28%{transform:rotate(-4deg)scale(1.05)}32%{transform:rotate(0)scale(1)}42%{transform:rotate(0)scale(1)}52%{transform:rotate(180deg)scale(1.24)}66%{transform:rotate(360deg)scale(1)}to{transform:rotate(360deg)scale(1)}}.figure-red.is-ready .figure-avatar-wrap{background:#ecfdf5;border-color:#34d399;animation:.35s cubic-bezier(.34,1.56,.64,1) readyPop;box-shadow:0 4px 12px #10b98159}.figure-green .figure-avatar-wrap{background:#ecfdf5;border-color:#06d6a0;box-shadow:0 4px 10px #06d6a033}.figure-green.is-waiting{animation:1.6s ease-in-out infinite waitingPulse}.figure-green.is-waiting #avatar-p3-face{transform-origin:50%;animation:2.4s cubic-bezier(.45,.05,.55,.95) infinite hourglassWobbleSpin;display:inline-block}.figure-green.is-ready .figure-avatar-wrap{background:#ecfdf5;border-color:#06d6a0;animation:.35s cubic-bezier(.34,1.56,.64,1) readyPop;box-shadow:0 4px 12px #06d6a059}.figure-gold .figure-avatar-wrap{background:#fffbeb;border-color:#ffb703;box-shadow:0 4px 10px #ffb70333}.figure-gold.is-waiting{animation:1.6s ease-in-out infinite waitingPulse}.figure-gold.is-waiting #avatar-p4-face{transform-origin:50%;animation:2.4s cubic-bezier(.45,.05,.55,.95) infinite hourglassWobbleSpin;display:inline-block}.figure-gold.is-ready .figure-avatar-wrap{background:#fffbeb;border-color:#ffb703;animation:.35s cubic-bezier(.34,1.56,.64,1) readyPop;box-shadow:0 4px 12px #ffb70359}@keyframes waitingPulse{0%,to{transform:scale(1)}50%{transform:scale(1.05)}}@keyframes readyPop{0%{transform:scale(.9)}60%{transform:scale(1.1)}to{transform:scale(1)}}.figure-crown{filter:drop-shadow(0 2px 2px #00000040);z-index:2;font-size:18px;position:absolute;top:-12px}.figure-face{font-size:26px;line-height:1}.figure-name{letter-spacing:.5px;text-transform:uppercase;font-size:11px;font-weight:900}.figure-blue .figure-name{color:#1d4ed8}.figure-red .figure-name{color:#b91c1c}.figure-red.is-ready .figure-name{color:#047857}.toy-vs{color:#fff;background:linear-gradient(135deg,#f59e0b,#d97706);border:2.5px solid #fff;border-radius:50%;flex-shrink:0;justify-content:center;align-items:center;width:32px;height:32px;font-size:13px;font-weight:900;display:flex;box-shadow:0 3px 8px #d9770659}.qr-block{flex-direction:column;align-items:center;gap:8px;width:100%;display:flex}.qr-instruction{color:#334155;text-align:center;margin:0;font-size:14px;font-weight:800}.toy-status{color:#475569;justify-content:center;align-items:center;gap:8px;width:100%;margin-top:2px;font-size:13px;font-weight:800;display:flex}.toy-status.is-connected{color:#065f46}.toy-status.is-guest{color:#9f1239}.duel-status-dot{background:#a06cd5;border-radius:50%;flex-shrink:0;width:10px;height:10px;box-shadow:0 0 0 4px #a06cd52e}.duel-status-dot.waiting{animation:1.4s ease-in-out infinite statusPulse}.duel-status-dot.connected{background:#06d6a0;animation:none;box-shadow:0 0 0 4px #06d6a033}@keyframes statusPulse{0%,to{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(1.15)}}.qr-frame{background:#fff;border:4px solid #ede3d2;border-radius:20px;justify-content:center;align-items:center;width:196px;height:196px;margin:0 auto;display:flex;position:relative;overflow:hidden;box-shadow:inset 0 2px 6px #0000001f,0 4px 12px #00000014}.qr-frame.is-loading #qr-canvas{opacity:0}.qr-frame.is-loading:after{content:"";background:linear-gradient(90deg,#ede3d2 0%,#fdfbf7 50%,#ede3d2 100%) 0 0/200% 100%;border-radius:12px;animation:1.1s linear infinite qrShimmer;position:absolute;inset:16px}.qr-frame.is-error{height:auto;min-height:88px;padding:12px}@keyframes qrShimmer{0%{background-position:100% 0}to{background-position:-100% 0}}#qr-canvas,#beacon-qr-canvas{background:#fff;border-radius:12px;margin:0 auto;display:block;width:180px!important;height:180px!important}.toy-action-btn,.optical-target-btn{color:#fff;letter-spacing:.5px;cursor:pointer;pointer-events:auto;touch-action:manipulation;-webkit-user-select:none;user-select:none;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border:3px solid #fff;border-radius:26px;justify-content:center;align-items:center;gap:8px;width:100%;min-height:52px;margin-top:2px;padding:12px 20px;font-size:17px;font-weight:900;transition:transform .1s,box-shadow .1s,background .2s;display:flex;box-shadow:0 6px #1e40af,0 10px 22px #2563eb59}.toy-action-btn:active,.optical-target-btn:active{transform:translateY(4px);box-shadow:0 2px #1e40af,0 4px 10px #2563eb40}.toy-action-btn.highlight,.optical-target-btn.highlight{background:linear-gradient(135deg,#10b981,#059669);animation:1.4s ease-in-out infinite pulseTargetBtn;box-shadow:0 6px #047857,0 10px 24px #10b98173}.toy-action-btn.highlight:active,.optical-target-btn.highlight:active{transform:translateY(4px);box-shadow:0 2px #047857,0 4px 10px #10b9814d}@keyframes pulseTargetBtn{0%,to{transform:scale(1)}50%{transform:scale(1.04)}}.qr-fallback{color:#9f1239;text-align:center;padding:8px;font-size:13px;font-weight:700;line-height:1.35}.qr-fallback.hidden{display:none!important}.qr-caption{color:#1e293b;text-align:center;font-size:14px;font-weight:800}.copy-url-btn{color:#64748b;cursor:pointer;touch-action:manipulation;background:0 0;border:1.5px dashed #cbd5e1;border-radius:14px;width:auto;max-width:240px;padding:6px 14px;font-size:12px;font-weight:700;transition:all .15s}.copy-url-btn:hover{color:#334155;background:#f8fafc;border-color:#94a3b8}.copy-url-btn.is-copied{color:#047857;background:#ecfdf5;border-color:#34d399;box-shadow:0 2px 6px #0596692e}.copy-url-btn.is-error{color:#b91c1c;background:#fff1f2;border-color:#f87171}.toy-modal-subactions{justify-content:center;align-items:center;gap:8px;width:100%;margin-top:4px;display:flex}.duel-host-note{color:#64748b;text-align:center;margin:0;font-size:12px;font-weight:700;line-height:1.35}@media (height<=640px){.duel-card{padding:16px 14px 14px}.qr-frame,#qr-canvas{width:148px!important;height:148px!important}}@media (prefers-reduced-motion:reduce){.duel-status-dot.waiting,.qr-frame.is-loading:after,.duel-card{animation:none!important}}.confirm-card{color:#3b2314;text-align:center;background:#fdfbf7;border:4px solid #ede3d2;border-radius:30px;width:100%;max-width:340px;padding:24px 20px;animation:.25s cubic-bezier(.34,1.56,.64,1) popModal;box-shadow:0 20px 48px #23140a6b,inset 0 2px 4px #fffffff2,inset 0 -3px 6px #b48c5a2e,0 0 0 6px #5c3519}.confirm-icon{margin-bottom:10px;font-size:46px;line-height:1}.confirm-title{color:#3b2314;text-shadow:0 1px #fffc;margin:0 0 8px;font-size:22px;font-weight:800}.confirm-message{color:#64748b;margin:0 0 22px;font-size:14px;font-weight:600;line-height:1.4}.confirm-actions{justify-content:center;gap:12px;display:flex}.confirm-btn{cursor:pointer;touch-action:manipulation;border:none;border-radius:22px;flex:1;justify-content:center;align-items:center;min-height:48px;font-size:15px;font-weight:800;transition:transform .1s,box-shadow .1s;display:flex}.confirm-btn-cancel{color:#785a44;background:#f1ece1;border:2px solid #ede3d2;box-shadow:0 4px #d9cdbd}.confirm-btn-cancel:active{transform:translateY(3px);box-shadow:0 1px #d9cdbd}.confirm-btn-yes{color:#fff;text-shadow:0 1px 2px #0003;background:linear-gradient(135deg,#ffd166,#ffb703);box-shadow:0 4px #d99b00,0 6px 14px #ffb70366}.confirm-btn-yes:active{transform:translateY(3px);box-shadow:0 1px #d99b00,0 3px 8px #ffb7034d}.confirm-btn-yes.coral{background:linear-gradient(135deg,#ff70a6,#ff9770);box-shadow:0 4px #d9487c,0 6px 14px #ff70a666}.confirm-btn-yes.coral:active{transform:translateY(3px);box-shadow:0 1px #d9487c,0 3px 8px #ff70a64d}.elevation-slider-container{pointer-events:auto;z-index:15;background:#fffffff0;border:3px solid #fff;border-radius:26px;flex-direction:column;align-items:center;gap:6px;padding:10px 8px;display:flex;position:absolute;top:50%;right:14px;transform:translateY(-50%);box-shadow:0 8px 24px #00000029}.elevation-icon{font-size:18px}.elevation-val{color:#3b82f6;font-size:13px;font-weight:800}.elevation-range{-webkit-appearance:slider-vertical;writing-mode:vertical-lr;cursor:pointer;accent-color:#ffb703;direction:rtl;width:28px;height:120px}.elevation-caption{color:#64748b;letter-spacing:.5px;font-size:10px;font-weight:800}.height-control-container{pointer-events:auto;z-index:25;background:#fffffff0;border:3px solid #fff;border-radius:26px;flex-direction:column;align-items:center;gap:6px;padding:8px 6px;transition:opacity .3s;display:flex;position:absolute;top:50%;left:14px;transform:translateY(-50%);box-shadow:0 8px 24px #00000029}.height-control-container.hidden{display:none!important}.height-nudge-btn{color:#fff;cursor:pointer;background:linear-gradient(135deg,#06d6a0,#118ab2);border:2px solid #fff;border-radius:50%;justify-content:center;align-items:center;width:38px;height:38px;font-size:16px;font-weight:900;transition:transform .1s;display:flex;box-shadow:0 3px 8px #0000002e}.height-nudge-btn:active{transform:scale(.85)}.height-display{flex-direction:column;align-items:center;gap:2px;display:flex}.height-icon{font-size:14px}.height-val{color:#1e293b;font-size:12px;font-weight:800}.height-caption{color:#64748b;letter-spacing:.5px;font-size:9px;font-weight:800}.height-divider{background:#e2e8f0;border-radius:1px;width:26px;height:2px;margin:3px 0}.surface-reset-btn{color:#fff;cursor:pointer;background:linear-gradient(135deg,#ff70a6,#e63946);border:2px solid #fff;border-radius:16px;flex-direction:column;justify-content:center;align-items:center;gap:1px;width:44px;height:44px;padding:2px;transition:transform .1s,box-shadow .1s;display:flex;box-shadow:0 4px 10px #e6394647}.surface-reset-btn:active{transform:scale(.88);box-shadow:0 2px 5px #e6394633}.reset-btn-icon{font-size:15px;line-height:1}.reset-btn-label{letter-spacing:.5px;font-size:8px;font-weight:900;line-height:1}.rotate-btns{flex-direction:column;align-items:center;gap:4px;display:flex}.rotate-btn{color:#fff;cursor:pointer;background:linear-gradient(135deg,#ffd166,#ffb703);border:2px solid #fff;border-radius:50%;justify-content:center;align-items:center;width:38px;height:38px;font-size:18px;font-weight:900;transition:transform .1s;display:flex;box-shadow:0 3px 8px #ffb70347}.rotate-btn:active{transform:scale(.85)}.impact-vignette{pointer-events:none;z-index:18;opacity:0;background:radial-gradient(circle,#0000 55%,#0000004d 100%);width:100%;height:100%;transition:opacity .25s ease-out;position:fixed;inset:0}.impact-vignette.active{opacity:.6}.replay-hud{pointer-events:none;z-index:25;flex-direction:column;justify-content:space-between;width:100%;height:100%;transition:opacity .25s ease-out;display:flex;position:fixed;inset:0}.replay-hud.hidden{opacity:0;display:none!important}.replay-badge{-webkit-backdrop-filter:blur(8px);z-index:26;background:#0f172ad9;border:1.5px solid #ffffff40;border-radius:20px;align-items:center;gap:8px;padding:6px 14px;animation:1.8s ease-in-out infinite alternate replayBadgePulse;display:flex;position:absolute;top:58px;left:20px;box-shadow:0 4px 16px #0006}.replay-dot{background:#ef4444;border-radius:50%;width:10px;height:10px;animation:.8s ease-in-out infinite alternate replayDotBlink;box-shadow:0 0 10px #ef4444}.replay-title{color:#fff;letter-spacing:2px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;font-size:13px;font-weight:800}.replay-speed{color:#ffd166;letter-spacing:.5px;background:#ffd16626;border-radius:10px;margin-left:4px;padding:2px 7px;font-size:11px;font-weight:700}.replay-letterbox-top{background:#000;width:100%;height:48px;box-shadow:0 4px 16px #000c}.replay-letterbox-bottom{background:#000;justify-content:center;align-items:center;width:100%;height:48px;display:flex;box-shadow:0 -4px 16px #000c}.replay-skip-hint{color:#ffffffa6;letter-spacing:1.5px;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;font-size:11px;font-weight:600}@keyframes replayDotBlink{0%{opacity:.35;transform:scale(.9)}to{opacity:1;transform:scale(1.15)}}@keyframes replayBadgePulse{0%{transform:translateY(0)}to{transform:translateY(-2px)}}.impact-banner{color:#fff;text-shadow:2px 2px #d90429,3px 3px #00000059;letter-spacing:1px;white-space:nowrap;pointer-events:none;z-index:25;opacity:0;background:linear-gradient(135deg,#ffd166,#ff70a6);border:4px solid #fff;border-radius:28px;padding:10px 24px;font-size:clamp(20px,5.5vw,32px);font-weight:900;transition:all .2s cubic-bezier(.34,1.56,.64,1);position:absolute;top:18%;left:50%;transform:translate(-50%,-50%)scale(.6);box-shadow:0 10px 30px #d9042973}.impact-banner.active{animation:1.35s cubic-bezier(.34,1.56,.64,1) forwards impactBannerPop}@keyframes impactBannerPop{0%{opacity:0;transform:translate(-50%,-50%)scale(.4)rotate(-5deg)}18%{opacity:1;transform:translate(-50%,-50%)scale(1.18)rotate(3deg)}30%{transform:translate(-50%,-50%)scale(1)rotate(0)}75%{opacity:1;transform:translate(-50%,-50%)scale(1.02)}to{opacity:0;transform:translate(-50%,-50%)scale(.85)}}.splash-overlay{-webkit-backdrop-filter:none;z-index:9999;width:100%;height:100%;padding:calc(env(safe-area-inset-top,16px) + 20px) 16px calc(env(safe-area-inset-bottom,24px) + 28px) 16px;pointer-events:none;box-sizing:border-box;background:0 0;flex-direction:column;justify-content:space-between;align-items:center;transition:opacity .4s,visibility .4s;display:flex;position:fixed;inset:0}.splash-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none;display:none!important}.splash-header{-webkit-backdrop-filter:blur(10px);text-align:center;pointer-events:auto;touch-action:manipulation;background:#ffffffe6;border:3px solid #fff;border-radius:28px;flex-direction:column;align-items:center;gap:4px;padding:10px 24px;animation:.5s cubic-bezier(.34,1.56,.64,1) popSplashHeader;display:flex;box-shadow:0 10px 28px #0000002e,0 3px 6px #00000014}@keyframes popSplashHeader{0%{opacity:0;transform:translateY(-30px)scale(.9)}to{opacity:1;transform:translateY(0)scale(1)}}.splash-title{letter-spacing:2.5px;-webkit-user-select:none;user-select:none;justify-content:center;align-items:center;gap:12px;margin:0;font-size:clamp(34px,10vw,56px);font-weight:900;line-height:1.05;display:flex}.title-toybox{color:#ffb703;text-shadow:3px 3px #fb8500,-1.5px -1.5px #fff,1.5px -1.5px #fff,-1.5px 1.5px #fff,1.5px 1.5px #fff,5px 5px #d90429,0 8px 18px #00000052;display:inline-block;transform:rotate(-2.5deg)}.title-siege{color:#4cc9f0;text-shadow:3px 3px #3a86ff,-1.5px -1.5px #fff,1.5px -1.5px #fff,-1.5px 1.5px #fff,1.5px 1.5px #fff,5px 5px #1d3557,0 8px 18px #00000052;display:inline-block;transform:rotate(2.5deg)}.splash-start-btn{color:#fff;letter-spacing:2px;cursor:pointer;text-shadow:0 2px 4px #00000038;pointer-events:auto;touch-action:manipulation;background:linear-gradient(135deg,#06d6a0,#05b184);border:4px solid #fff;border-radius:40px;padding:16px 56px;font-size:26px;font-weight:900;transition:transform .12s cubic-bezier(.34,1.56,.64,1),box-shadow .12s;animation:.5s cubic-bezier(.34,1.56,.64,1) popSplashBtn,2.2s ease-in-out infinite pulseStartBtn;box-shadow:0 10px 26px #06d6a073,0 4px 10px #00000026}@keyframes popSplashBtn{0%{opacity:0;transform:translateY(30px)scale(.9)}to{opacity:1;transform:translateY(0)scale(1)}}@keyframes pulseStartBtn{0%,to{transform:scale(1)}50%{transform:scale(1.04)}}.splash-start-btn *{pointer-events:none}.splash-start-btn:active{transform:scale(.92)!important;box-shadow:0 4px 12px #06d6a04d!important}.sync-beacon-overlay{z-index:10000;box-sizing:border-box;-webkit-backdrop-filter:blur(12px);pointer-events:auto;background:#0a0a14f2;justify-content:center;align-items:center;width:100%;height:100%;padding:16px;transition:opacity .3s;display:flex;position:fixed;inset:0}.sync-beacon-overlay.hidden{opacity:0;pointer-events:none;display:none!important}.beacon-card{text-align:center;color:#3b2314;pointer-events:auto;background:#fdfbf7;border:4px solid #ede3d2;border-radius:32px;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:360px;max-height:92vh;padding:20px 18px;animation:.3s cubic-bezier(.34,1.56,.64,1) popModal;display:flex;overflow-y:auto;box-shadow:0 20px 48px #23140a6b,inset 0 2px 4px #fffffff2,inset 0 -3px 6px #b48c5a2e,0 0 0 6px #5c3519}.beacon-header{justify-content:space-between;align-items:center;width:100%;display:flex}.beacon-badge{color:#3b82f6;letter-spacing:.5px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:20px;padding:4px 12px;font-size:13px;font-weight:800}.beacon-direction{background:#f8fafc;border:2px solid #e2e8f0;border-radius:20px;align-items:center;gap:6px;padding:6px 14px;display:flex}.beacon-arrow{font-size:20px;animation:1.2s ease-in-out infinite bounceArrow}.beacon-arrow-label{color:#1e293b;letter-spacing:1px;font-size:12px;font-weight:900}.beacon-target{justify-content:center;align-items:center;width:180px;height:180px;margin:4px 0;display:flex;position:relative}.beacon-ring{box-sizing:border-box;border-radius:50%;justify-content:center;align-items:center;display:flex}.ring-outer{background:#0f172a;width:180px;height:180px;box-shadow:0 0 24px #3b82f673}.ring-mid{background:#fff;border:12px solid #0f172a;width:136px;height:136px}.ring-inner{background:#3b82f6;border:10px solid #fff;width:80px;height:80px}.beacon-center-disc{background:#ffd166;border-radius:50%;width:32px;height:32px;box-shadow:0 0 12px #ffd166}.beacon-crosshair-h{pointer-events:none;background:#ffffffe6;width:200px;height:4px;position:absolute;box-shadow:0 0 6px #0006}.beacon-crosshair-v{pointer-events:none;background:#ffffffe6;width:4px;height:200px;position:absolute;box-shadow:0 0 6px #0006}.beacon-instructions{flex-direction:column;gap:4px;display:flex}.beacon-instruction-main{color:#0f172a;margin:0;font-size:15px;font-weight:800}.beacon-instruction-sub{color:#64748b;margin:0;font-size:12px;font-weight:600}.beacon-players-status{flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;margin:4px 0;display:flex}.beacon-player-chip{color:#fff;background:#2563eb;border-radius:12px;padding:3px 8px;font-size:11px;font-weight:800;transition:all .2s;box-shadow:0 2px 6px #00000026}.beacon-player-chip.chip-red{background:#e63946}.beacon-player-chip.chip-green{background:#06d6a0}.beacon-player-chip.chip-gold{color:#1e293b;background:#ffb703}.beacon-player-chip.waiting{opacity:.65;filter:grayscale(.4)}.beacon-player-chip.hidden{display:none!important}.beacon-done-btn{color:#fff;cursor:pointer;pointer-events:auto;touch-action:manipulation;background:linear-gradient(135deg,#06d6a0,#059669);border:none;border-radius:20px;width:100%;padding:12px;font-size:16px;font-weight:800;box-shadow:0 4px 14px #06d6a059}.beacon-view-tabs{pointer-events:auto;box-sizing:border-box;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:20px;gap:4px;width:100%;padding:4px;display:flex}.beacon-view-tab{color:#64748b;cursor:pointer;pointer-events:auto;touch-action:manipulation;background:0 0;border:none;border-radius:16px;flex:1;padding:8px 10px;font-size:13px;font-weight:800;transition:all .15s}.beacon-view-tab.active{color:#1e293b;background:#fff;box-shadow:0 2px 8px #0000001f}.beacon-qr-view{pointer-events:auto;flex-direction:column;align-items:center;gap:8px;width:100%;display:flex}.beacon-target-view{pointer-events:auto;flex-direction:column;align-items:center;width:100%;display:flex}.beacon-qr-view.hidden,.beacon-target-view.hidden{display:none!important}#beacon-qr-canvas{background:#fff;border-radius:12px;display:block;width:176px!important;height:176px!important}.beacon-close-x{color:#64748b;cursor:pointer;pointer-events:auto;touch-action:manipulation;background:#f8fafc;border:2px solid #e2e8f0;border-radius:50%;flex-shrink:0;justify-content:center;align-items:center;width:36px;height:36px;font-size:18px;font-weight:800;display:flex}.beacon-close-x:active{background:#e2e8f0;transform:scale(.92)}.p2-sync-container{pointer-events:none;z-index:22;padding:calc(env(safe-area-inset-top,16px) + 20px) 16px calc(env(safe-area-inset-bottom,24px) + 24px);box-sizing:border-box;flex-direction:column;justify-content:space-between;align-items:center;display:flex;position:absolute;inset:0}.p2-sync-container.hidden{display:none!important}.p2-sync-card{pointer-events:auto;-webkit-backdrop-filter:blur(14px);background:#fffffff5;border:3px solid #fff;border-radius:26px;flex-direction:column;gap:6px;width:100%;max-width:360px;padding:12px 18px;animation:.25s cubic-bezier(.34,1.56,.64,1) popModal;display:flex;box-shadow:0 10px 30px #00000038}.p2-sync-header{justify-content:space-between;align-items:center;width:100%;display:flex}.p2-sync-badge{letter-spacing:.5px;color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:900}.p2-surface-status{color:#92400e;background:#fef3c7;border:1px solid #fde68a;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:800;transition:background .2s,color .2s}.p2-surface-status.detected{color:#166534;background:#dcfce7;border-color:#bbf7d0}.p2-sync-title{color:#0f172a;letter-spacing:.3px;margin:2px 0 0;font-size:16px;font-weight:900}.p2-sync-steps{flex-direction:column;gap:3px;margin:0;padding-left:20px;list-style-type:decimal;display:flex}.p2-sync-steps li{color:#334155;font-size:12px;font-weight:650;line-height:1.35}.beacon-crosshair{pointer-events:none;flex-direction:column;justify-content:center;align-items:center;gap:6px;display:flex;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}.beacon-crosshair.hidden{display:none!important}.crosshair-ring{border:3px dashed #ffffffe6;border-radius:50%;width:82px;height:82px;transition:border-color .2s,box-shadow .2s;animation:12s linear infinite crosshairSpin;box-shadow:0 0 16px #3b82f6a6,inset 0 0 14px #3b82f666}.crosshair-ring.detected{border-color:#06d6a0;box-shadow:0 0 18px #06d6a0bf,inset 0 0 14px #06d6a073}@keyframes crosshairSpin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}.crosshair-dot{background:#ffd166;border-radius:50%;width:10px;height:10px;position:absolute;top:calc(50% - 12px);left:50%;transform:translate(-50%,-50%);box-shadow:0 0 10px #ffd166}.crosshair-tip{color:#fff;letter-spacing:.8px;text-shadow:0 1px 4px #000c,0 0 10px #0009;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);background:#0f172aa6;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:900}.p2-sync-actions{pointer-events:auto;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:340px;margin-bottom:24px;display:flex}.btn-lock-beacon{pointer-events:auto;color:#fff;letter-spacing:.5px;cursor:pointer;touch-action:manipulation;background:linear-gradient(135deg,#3b82f6,#2563eb);border:3px solid #fff;border-radius:36px;width:100%;min-height:52px;padding:14px 28px;font-size:17px;font-weight:900;transition:transform .1s,box-shadow .15s;box-shadow:0 8px 24px #2563eb73}.btn-lock-beacon.hidden{display:none!important}.btn-lock-beacon:active{transform:scale(.93)}.btn-confirm-sync{pointer-events:auto;color:#fff;letter-spacing:.5px;cursor:pointer;touch-action:manipulation;background:linear-gradient(135deg,#06d6a0,#059669);border:3px solid #fff;border-radius:36px;width:100%;min-height:54px;padding:14px 28px;font-size:18px;font-weight:900;transition:transform .1s;animation:1.5s ease-in-out infinite pulseConfirmSync;box-shadow:0 8px 28px #06d6a08c}.btn-confirm-sync.hidden{display:none!important}.btn-confirm-sync:active{transform:scale(.93)}@keyframes pulseConfirmSync{0%,to{transform:scale(1)}50%{transform:scale(1.04)}}.btn-sync-table-fallback{-webkit-backdrop-filter:blur(8px);color:#475569;cursor:pointer;pointer-events:auto;touch-action:manipulation;background:#ffffffe0;border:1.5px solid #cbd5e1;border-radius:20px;padding:6px 16px;font-size:12px;font-weight:750;transition:background .15s}.btn-sync-table-fallback.hidden{display:none!important}.btn-sync-table-fallback:active{background:#e2e8f0;transform:scale(.95)}.corner-step-indicator{-webkit-backdrop-filter:blur(8px);color:#0f172a;pointer-events:auto;background:#fffffff0;border:2px solid #fff;border-radius:20px;margin-bottom:70px;padding:10px 20px;font-size:14px;font-weight:800;animation:.2s cubic-bezier(.34,1.56,.64,1) popModal;box-shadow:0 6px 20px #00000029}.corner-step-indicator.hidden{display:none!important}.beacon-trigger-btn{color:#1d4ed8;cursor:pointer;background:#eff6ff;border:2px solid #bfdbfe;border-radius:14px;width:100%;margin-top:10px;padding:10px 14px;font-size:13px;font-weight:800;transition:background .15s}.beacon-trigger-btn:active{background:#dbeafe}.crown-scoreboard{top:calc(env(safe-area-inset-top,10px) + 58px);-webkit-backdrop-filter:blur(10px);pointer-events:none;z-index:25;background:#fffffff0;border:2px solid #fff;border-radius:20px;gap:6px;max-width:94%;padding:4px 10px;transition:opacity .25s,transform .25s;display:flex;position:absolute;left:50%;overflow-x:auto;transform:translate(-50%);box-shadow:0 4px 14px #00000029}.crown-scoreboard.hidden{opacity:0;visibility:hidden;transform:translate(-50%)translateY(-8px)}.crown-pill{color:#fff;white-space:nowrap;border:1.5px solid #fff;border-radius:12px;align-items:center;gap:4px;padding:3px 8px;font-size:11px;font-weight:800;transition:opacity .3s,filter .3s;display:flex;box-shadow:0 2px 4px #0000001f}.crown-pill.toppled{opacity:.38;filter:grayscale(85%);text-decoration:line-through}.crown-pill.sleepy{border-color:#ffd166;animation:1.8s ease-in-out infinite sleepyPill;box-shadow:0 0 0 2px #ffd166,0 3px 8px #ffb70359}@keyframes sleepyPill{0%,to{opacity:.92;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}body.screen-shake-heavy #webgl-canvas,body.screen-shake-heavy #overlay{animation:.35s cubic-bezier(.36,.07,.19,.97) both screenShakeHeavy}body.screen-shake-medium #webgl-canvas,body.screen-shake-medium #overlay{animation:.25s cubic-bezier(.36,.07,.19,.97) both screenShakeMedium}@keyframes screenShakeHeavy{0%{transform:translate(0)rotate(0)}15%{transform:translate(-6px,4px)rotate(-1deg)}30%{transform:translate(5px,-5px)rotate(1deg)}45%{transform:translate(-4px,3px)rotate(-.5deg)}65%{transform:translate(3px,-2px)rotate(.4deg)}85%{transform:translate(-1px,1px)rotate(-.2deg)}to{transform:translate(0)rotate(0)}}@keyframes screenShakeMedium{0%{transform:translate(0)}20%{transform:translate(-3px,2px)}40%{transform:translate(3px,-2px)}60%{transform:translate(-2px,1px)}80%{transform:translate(2px,-1px)}to{transform:translate(0)}}.powerup-badge{bottom:calc(env(safe-area-inset-bottom,24px) + 94px);color:#fff;letter-spacing:.5px;z-index:24;pointer-events:auto;cursor:pointer;background:linear-gradient(135deg,#ffb703,#fb8500);border:2.5px solid #fff;border-radius:22px;align-items:center;gap:6px;padding:6px 16px;font-size:13px;font-weight:900;transition:opacity .2s,transform .2s;animation:1.2s ease-in-out infinite powerupPulse;display:flex;position:absolute;left:50%;transform:translate(-50%);box-shadow:0 4px 14px #fb850073}.powerup-badge.hidden{opacity:0;visibility:hidden;transform:translate(-50%)translateY(8px)}@keyframes powerupPulse{0%,to{transform:translate(-50%)scale(1)}50%{transform:translate(-50%)scale(1.06)}}.victory-card{-webkit-backdrop-filter:blur(16px);text-align:center;background:#fffffffa;border:4px solid #ffd166;border-radius:28px;flex-direction:column;align-items:center;width:90%;max-width:380px;padding:24px 28px;animation:.35s cubic-bezier(.34,1.56,.64,1) popModal;display:flex;box-shadow:0 16px 40px #0000004d,0 0 30px #ffd16666}.victory-crown{font-size:54px;animation:1s ease-in-out infinite alternate bounceCrown}@keyframes bounceCrown{0%{transform:translateY(0)}to{transform:translateY(-8px)scale(1.1)}}.victory-title{color:#0f172a;letter-spacing:.5px;background:linear-gradient(135deg,#d97706,#f59e0b);-webkit-text-fill-color:transparent;-webkit-background-clip:text;margin:8px 0 4px;font-size:26px;font-weight:900}.victory-subtitle{color:#475569;margin-bottom:20px;font-size:14px;font-weight:700;line-height:1.4}.victory-btn{color:#fff;cursor:pointer;background:linear-gradient(135deg,#10b981,#059669);border:2px solid #fff;border-radius:24px;padding:12px 32px;font-size:16px;font-weight:800;transition:transform .12s;box-shadow:0 4px 14px #10b98159}.victory-btn:active{transform:scale(.92)}</style>
+  <script type="module" crossorigin src="./assets/index-MazfevVm.js"></script>
+</head>
+<body>
+  <!-- Real Camera Feed for AR Fallback -->
+  <video id="camera-feed" playsinline webkit-playsinline muted autoplay></video>
+
+  <!-- Three.js Canvas -->
+  <canvas id="webgl-canvas"></canvas>
+
+  <!-- WebXR DOM Overlay & Kid HUD -->
+  <div id="overlay">
+    <div class="top-bar" style="display: none;">
+      <div class="top-bar-dock">
+        <!-- Button 1: Rebuild Castle -->
+        <button id="btn-reset" class="kid-btn" aria-label="Rebuild Castle" title="Rebuild Castle">🏰</button>
+
+        <!-- Button 2: Reshape / Relocate Playground Mat -->
+        <button id="btn-arena-geometry" class="kid-btn" aria-label="Playground Mat" title="Playground Mat">🗺️</button>
+
+        <!-- Button 3: Play with Friends -->
+        <button id="btn-multiplayer" class="kid-btn" aria-label="Play Together" title="Play Together">
+          👥
+          <span id="player-count-badge" class="badge-count" style="display: none;"></span>
+        </button>
+
+        <!-- Button 4: Game Settings Hamburger -->
+        <button id="btn-settings" class="kid-btn" aria-label="Game Settings" title="Game Settings">☰</button>
+      </div>
+    </div>
+
+    <!-- Placement Guidance & Predefined Shapes Dock -->
+    <div id="placement-banner" class="placement-banner hidden">
+      <div id="shape-picker-dock" class="shape-picker-dock">
+        <button id="btn-reset-scan" class="shape-btn" aria-label="Recalibrate Room" title="Recalibrate Room">↩️</button>
+        <div class="dock-divider"></div>
+        <button id="btn-shape-rect" class="shape-btn active" aria-label="Rectangle Lane" title="Rectangle Lane">🔲</button>
+        <button id="btn-shape-circle" class="shape-btn" aria-label="Colosseum Circle" title="Colosseum Circle">🟡</button>
+        <button id="btn-shape-square" class="shape-btn" aria-label="Square Arena" title="Square Arena">⏹️</button>
+      </div>
+    </div>
+
+    <!-- Soft Hint Bubble -->
+    <div id="hint-bubble" class="hidden">
+      <span></span>
+    </div>
+
+    <!-- Direct Hit Cinematic Slow-Mo Vignette and Comic Popup Banner -->
+    <div id="impact-vignette" class="impact-vignette"></div>
+    <div id="impact-banner" class="impact-banner">👑 DIRECT HIT! 🎯</div>
+
+    <!-- Cinematic Slow-Mo Replay HUD (Overrides AR for just a moment) -->
+    <div id="replay-hud" class="replay-hud hidden">
+      <div class="replay-badge">
+        <span class="replay-dot"></span>
+        <span class="replay-title">REPLAY</span>
+        <span class="replay-speed">0.2x SLOW-MO</span>
+      </div>
+      <div class="replay-letterbox-top"></div>
+      <div class="replay-letterbox-bottom">
+        <span class="replay-skip-hint">TAP SCREEN TO SKIP</span>
+      </div>
+    </div>
+
+    <!-- Live Multi-Player Crown Scoreboard -->
+    <div id="crown-scoreboard" class="crown-scoreboard hidden">
+      <div id="crown-pill-list" class="crown-pill-list" style="display: flex; gap: 6px;"></div>
+    </div>
+
+    <!-- Special Ammo Power-Up Badge -->
+    <div id="powerup-badge" class="powerup-badge hidden">
+      <span id="powerup-icon" class="powerup-icon">💣</span>
+      <span id="powerup-label" class="powerup-label">BOULDER READY!</span>
+    </div>
+
+    <!-- Kid-friendly Vertical Ammo Magazine Rack -->
+    <div id="ammo-rack" class="ammo-rack" style="display: none;">
+      <span class="ammo-label" id="ammo-label">🎯</span>
+      <div id="ammo-pips" class="ammo-pips">
+        <div class="ammo-pip"></div>
+        <div class="ammo-pip"></div>
+        <div class="ammo-pip"></div>
+        <div class="ammo-pip"></div>
+        <div class="ammo-pip"></div>
+        <div class="ammo-pip"></div>
+      </div>
+      <button id="btn-reload-ammo" class="btn-reload-ammo hidden" type="button" aria-label="Reload Cannonballs">
+        <span>🔄</span>
+        <span>RELOAD</span>
+      </button>
+      <div id="ammo-wait-container" class="ammo-wait-status hidden">
+        <span id="ammo-wait-text">⏳<br>WAIT</span>
+        <button id="btn-force-reload" class="btn-force-reload" type="button" title="Force Reload Now">⚡ Reload</button>
+      </div>
+    </div>
+
+    <!-- Elevation Lob Angle Slider -->
+    <div id="elevation-slider-container" class="elevation-slider-container" style="display: none;">
+      <span class="elevation-icon">🏹</span>
+      <span id="elevation-val-label" class="elevation-val">50°</span>
+      <input id="elevation-slider" type="range" min="20" max="75" value="50" class="elevation-range">
+      <span class="elevation-caption">LOB</span>
+    </div>
+
+    <!-- Play Area Height Controls (Visible during AR Ghost Mode) -->
+    <div id="height-control-container" class="height-control-container hidden">
+      <button id="btn-height-up" class="height-nudge-btn" aria-label="Raise Field Up">▲</button>
+      <div class="height-display">
+        <span class="height-icon">↕️</span>
+        <span id="height-val-label" class="height-val">0.0m</span>
+      </div>
+      <button id="btn-height-down" class="height-nudge-btn" aria-label="Lower Field Down">▼</button>
+      <span class="height-caption">HEIGHT</span>
+    </div>
+
+    <!-- Confirm Placement Check Button shown during AR Ghost Mode -->
+    <button id="btn-confirm-ar" class="hidden" aria-label="Confirm Placement">
+      <span>✅</span>
+    </button>
+
+    <!-- 360 Walk and Orbit touch surface in upper overlay -->
+    <div id="orbit-zone"></div>
+
+    <!-- Pull-to-fire bottom touch surface INSIDE the overlay for WebXR compatibility -->
+    <div id="slingshot-zone"></div>
+
+    <!-- Slingshot pull guide helper for 5-year-old -->
+    <div id="pull-guide" class="pull-guide hidden">
+      <span class="pull-arrow">🔽</span>
+      <span>PULL BACK</span>
+    </div>
+
+    <!-- 2-Player Join Modal Dialog (Inside WebXR DOM Overlay for guaranteed AR visibility) -->
+    <div id="modal-multiplayer" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="mp-title" aria-describedby="duel-status-text" aria-hidden="true">
+      <div class="modal-card duel-card">
+        <div class="duel-header">
+          <div class="duel-header-title">
+            <span class="title-icon">👥</span>
+            <span id="mp-title">PLAY TOGETHER</span>
+          </div>
+          <button type="button" id="btn-close-modal" class="duel-close-btn" aria-label="Close invite">✕</button>
+        </div>
+
+        <!-- Figurine Matchup Stage (Up to 4 Players) -->
+        <div class="toy-stage">
+          <div class="toy-figure figure-blue" id="avatar-player-1">
+            <span class="figure-crown">👑</span>
+            <div class="figure-avatar-wrap">
+              <span class="figure-face" id="avatar-p1-face">🙂</span>
+            </div>
+            <span class="figure-name" id="avatar-p1-tag">YOU (P1)</span>
+          </div>
+          <div class="toy-figure figure-red is-waiting" id="avatar-player-2">
+            <span class="figure-crown">👑</span>
+            <div class="figure-avatar-wrap">
+              <span class="figure-face" id="avatar-p2-face">⏳</span>
+            </div>
+            <span class="figure-name" id="avatar-p2-tag">PLAYER 2</span>
+          </div>
+          <div class="toy-figure figure-green is-waiting hidden" id="avatar-player-3">
+            <span class="figure-crown">👑</span>
+            <div class="figure-avatar-wrap">
+              <span class="figure-face" id="avatar-p3-face">+</span>
+            </div>
+            <span class="figure-name" id="avatar-p3-tag">PLAYER 3</span>
+          </div>
+          <div class="toy-figure figure-gold is-waiting hidden" id="avatar-player-4">
+            <span class="figure-crown">👑</span>
+            <div class="figure-avatar-wrap">
+              <span class="figure-face" id="avatar-p4-face">+</span>
+            </div>
+            <span class="figure-name" id="avatar-p4-tag">PLAYER 4</span>
+          </div>
+          <button type="button" id="btn-add-player-seat" class="btn-add-seat" aria-label="Add player seat" title="Add another player">+ 3P</button>
+        </div>
+
+        <!-- Clean QR Centerpiece (Single Surface, No Boxes) -->
+        <div class="qr-block" id="qr-container">
+          <p class="qr-instruction" id="qr-caption-text">Point friend’s camera here!</p>
+          <div id="qr-frame" class="qr-frame is-loading" role="img" aria-label="QR code to join as Player 2">
+            <canvas id="qr-canvas" width="180" height="180" aria-hidden="true"></canvas>
+            <p id="qr-fallback" class="qr-fallback hidden">QR couldn’t load. Tap link below!</p>
+          </div>
+          
+          <div class="toy-status" id="duel-status">
+            <span id="duel-status-dot" class="duel-status-dot waiting" aria-hidden="true"></span>
+            <span id="duel-status-text">Waiting for friend...</span>
+          </div>
+        </div>
+
+        <button type="button" id="btn-set-optical-target" class="toy-action-btn">
+          Back to Game
+        </button>
+        
+        <div class="toy-modal-subactions">
+          <button type="button" id="btn-show-target-direct" class="copy-url-btn">🎯 Table Beacon</button>
+          <button type="button" id="btn-copy-url" class="copy-url-btn">🔗 Copy Link</button>
+        </div>
+        <p id="qr-url-text" class="qr-subtext" tabindex="0" style="display:none;"></p>
+        <p id="duel-host-note" class="duel-host-note" style="display:none;"></p>
+      </div>
+    </div>
+
+    <!-- Confirmation Dialog Modal (Inside WebXR DOM Overlay for AR and Desktop) -->
+    <div id="modal-confirm" class="modal-overlay hidden">
+      <div class="confirm-card">
+        <div id="confirm-icon" class="confirm-icon">⚠️</div>
+        <h3 id="confirm-title" class="confirm-title">Are you sure?</h3>
+        <p id="confirm-message" class="confirm-message">Do you want to reset?</p>
+        <div class="confirm-actions">
+          <button id="btn-confirm-cancel" class="confirm-btn confirm-btn-cancel">Keep Playing</button>
+          <button id="btn-confirm-yes" class="confirm-btn confirm-btn-yes">Yes, Reset!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Victory Royale Modal Overlay -->
+    <div id="modal-victory" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="victory-card">
+        <div class="victory-crown">👑</div>
+        <h2 id="victory-title" class="victory-title">VICTORY ROYALE!</h2>
+        <p id="victory-subtitle" class="victory-subtitle">Player 1 (Blue) is the Last King Standing!</p>
+        <button id="btn-victory-replay" class="victory-btn" type="button">Play Again 🎯</button>
+      </div>
+    </div>
+
+    <!-- Settings Hamburger Modal Dialog -->
+    <div id="modal-settings" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-card settings-card">
+        <div class="duel-header">
+          <div class="duel-header-title">
+            <span class="title-icon">⚙️</span>
+            <span id="settings-title">SETTINGS</span>
+          </div>
+          <button type="button" id="btn-close-settings" class="duel-close-btn" aria-label="Close Settings">✕</button>
+        </div>
+
+        <div class="settings-list">
+          <!-- Toggle 1: Sound Effects -->
+          <div class="setting-item-row">
+            <div class="setting-label-block">
+              <span class="setting-emoji">🔊</span>
+              <div class="setting-text-col">
+                <span class="setting-name">Sound Effects</span>
+                <span class="setting-desc" id="sound-status-desc">Whisper-quiet pops & clatters</span>
+              </div>
+            </div>
+            <button type="button" id="btn-toggle-sound" class="setting-toggle-pill is-on" aria-pressed="true">
+              <span class="toggle-pill-thumb"></span>
+              <span class="toggle-pill-text">ON</span>
+            </button>
+          </div>
+
+          <!-- Toggle 2: Haptic Vibration -->
+          <div class="setting-item-row">
+            <div class="setting-label-block">
+              <span class="setting-emoji">📳</span>
+              <div class="setting-text-col">
+                <span class="setting-name">Haptics</span>
+                <span class="setting-desc" id="haptic-status-desc">Gentle vibration pulses</span>
+              </div>
+            </div>
+            <button type="button" id="btn-toggle-haptic" class="setting-toggle-pill is-on" aria-pressed="true">
+              <span class="toggle-pill-thumb"></span>
+              <span class="toggle-pill-text">ON</span>
+            </button>
+          </div>
+
+          <!-- Toggle 3: Leader Character (King / Queen / Joker) -->
+          <div class="setting-group-box">
+            <div class="setting-group-label">
+              <span class="setting-emoji">👑</span>
+              <span class="setting-name">Royal Leader</span>
+            </div>
+            <div class="character-segmented-control">
+              <button type="button" class="char-picker-btn is-selected" data-character="king">
+                <span class="char-btn-emoji">👑</span>
+                <span class="char-btn-label">King</span>
+              </button>
+              <button type="button" class="char-picker-btn" data-character="queen">
+                <span class="char-btn-emoji">👸</span>
+                <span class="char-btn-label">Queen</span>
+              </button>
+              <button type="button" class="char-picker-btn" data-character="joker">
+                <span class="char-btn-emoji">🃏</span>
+                <span class="char-btn-label">Joker</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P2 Battlefield Sync Container (Visible during P2 AR Placement) -->
+    <div id="p2-sync-container" class="p2-sync-container hidden">
+      <!-- Sync Guide Card at top -->
+      <div class="p2-sync-card">
+        <div class="p2-sync-header">
+          <span class="p2-sync-badge" id="p2-sync-badge">PLAYER SETUP</span>
+          <span id="p2-surface-status" class="p2-surface-status">🔍 Point at Table</span>
+        </div>
+        <h4 id="p2-sync-title" class="p2-sync-title">Align with Host</h4>
+        <ol id="p2-sync-steps" class="p2-sync-steps">
+          <li>Host places phone on table facing you</li>
+          <li>Aim camera across at Host's phone screen</li>
+          <li>Auto-locks instantly, or tap Lock below</li>
+        </ol>
+      </div>
+
+      <!-- Center Aiming Reticle -->
+      <div id="beacon-crosshair" class="beacon-crosshair">
+        <div class="crosshair-ring" id="crosshair-ring"></div>
+        <div class="crosshair-dot"></div>
+        <span class="crosshair-tip" id="crosshair-tip">AIM AT TABLE BEACON</span>
+      </div>
+
+      <!-- Bottom Action Area -->
+      <div class="p2-sync-actions">
+        <button id="btn-lock-beacon" class="btn-lock-beacon" type="button">
+          🎯 Lock to Table
+        </button>
+        <button id="btn-confirm-sync" class="btn-confirm-sync hidden" type="button">
+          ✓ READY TO BATTLE
+        </button>
+        <button id="btn-sync-table-fallback" class="btn-sync-table-fallback" type="button">
+          Or tap to place directly on table
+        </button>
+      </div>
+
+      <div id="corner-step-indicator" class="corner-step-indicator hidden">
+        <span id="corner-step-text">Tap Corner 1 (your left baseline)</span>
+      </div>
+    </div>
+
+    <!-- Optical Screen Beacon Overlay for Player 1 -->
+    <div id="sync-beacon-overlay" class="sync-beacon-overlay hidden">
+      <div class="beacon-card">
+        <div class="beacon-header">
+          <span class="beacon-badge">TABLE BEACON</span>
+          <div class="beacon-direction">
+            <span class="beacon-arrow">⬆️</span>
+            <span class="beacon-arrow-label">POINT AT FRIEND</span>
+          </div>
+          <button type="button" id="btn-beacon-close-x" class="beacon-close-x" aria-label="Close beacon">✕</button>
+        </div>
+
+        <!-- Mode Tabs: Join QR Code vs Optical Target -->
+        <div class="beacon-view-tabs">
+          <button id="btn-beacon-tab-qr" type="button" class="beacon-view-tab active">📱 QR Code</button>
+          <button id="btn-beacon-tab-target" type="button" class="beacon-view-tab">🎯 Table Target</button>
+        </div>
+
+        <!-- 1. QR Code View (Default: P2 scans this on P1's screen to join) -->
+        <div id="beacon-qr-view" class="beacon-qr-view">
+          <div id="beacon-qr-frame" class="qr-frame">
+            <canvas id="beacon-qr-canvas" width="180" height="180"></canvas>
+            <p id="beacon-qr-fallback" class="qr-fallback hidden">QR couldn’t load. Tap link below!</p>
+          </div>
+          <p class="qr-caption" id="beacon-qr-caption">Point friend’s camera here!</p>
+          <button type="button" id="btn-beacon-copy-url" class="copy-url-btn">🔗 Copy Link</button>
+        </div>
+
+        <!-- 2. Concentric Target Glyph View -->
+        <div id="beacon-target-view" class="beacon-target-view hidden">
+          <div class="beacon-target">
+            <div class="beacon-ring ring-outer">
+              <div class="beacon-ring ring-mid">
+                <div class="beacon-ring ring-inner">
+                  <div class="beacon-center-disc"></div>
+                </div>
+              </div>
+            </div>
+            <div class="beacon-crosshair-h"></div>
+            <div class="beacon-crosshair-v"></div>
+          </div>
+        </div>
+
+        <!-- Connected Players Status Bar on Beacon -->
+        <div id="beacon-players-status" class="beacon-players-status">
+          <span id="beacon-status-p1" class="beacon-player-chip chip-blue">P1: You 👑</span>
+          <span id="beacon-status-p2" class="beacon-player-chip chip-red waiting">P2: ⏳</span>
+          <span id="beacon-status-p3" class="beacon-player-chip chip-green hidden">P3: ⏳</span>
+          <span id="beacon-status-p4" class="beacon-player-chip chip-gold hidden">P4: ⏳</span>
+        </div>
+
+        <div class="beacon-instructions">
+          <p class="beacon-instruction-main">Place phone flat on table! 📱</p>
+          <p class="beacon-instruction-sub">Friends point cameras here to lock in!</p>
+        </div>
+
+        <button id="btn-close-beacon" type="button" class="beacon-done-btn">🚀 START BATTLE!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Intro Splash Screen -->
+  <div id="splash-screen" class="splash-overlay">
+    <div class="splash-header">
+      <h1 class="splash-title">
+        <span class="title-toybox">TOYBOX</span>
+        <span class="title-siege">SIEGE</span>
+      </h1>
+    </div>
+    <button id="btn-start-ar" class="splash-start-btn" aria-label="Start Game">
+      <span>START</span>
+    </button>
+  </div>
+
+</body>
+</html>
