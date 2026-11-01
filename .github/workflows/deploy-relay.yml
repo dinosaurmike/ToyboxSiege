@@ -1,0 +1,20 @@
+# Deploys the multiplayer relay (relay/) to Cloudflare whenever it changes, or on demand (Actions tab → Run workflow).
+# Needs two repository secrets: CLOUDFLARE_API_TOKEN ("Edit Cloudflare Workers" token) and CLOUDFLARE_ACCOUNT_ID.
+name: Deploy relay
+
+on:
+  push:
+    branches: [main]
+    paths: ['relay/**', '.github/workflows/deploy-relay.yml']
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: relay
